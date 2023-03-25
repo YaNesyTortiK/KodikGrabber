@@ -34,7 +34,7 @@ def generate_translations_inline_keyboard(translations: list, series_count: int,
     """Callback: T_t['id']_t['name']_{series_count}_{serial_id}"""
     keyboard = InlineKeyboardMarkup()
     for t in translations:
-        btn = InlineKeyboardButton(text=t['name'], callback_data=f"T_{t['id']}_{t['name']}_{series_count}_{serial_id}")
+        btn = InlineKeyboardButton(text=t['name'], callback_data=f"T_{t['id']}_{t['name'][:15]}_{series_count}_{serial_id}")
         keyboard.add(btn)
     return keyboard
 
@@ -52,6 +52,13 @@ def generate_quality_inline_keyboard_for_film(series_count: int, translation_id:
     keyboard.add(InlineKeyboardButton("720p", callback_data=f"DS_{0}_{translation_id}_{serial_id}_720"))
     keyboard.add(InlineKeyboardButton("480p", callback_data=f"DS_{0}_{translation_id}_{serial_id}_480"))  
     keyboard.add(InlineKeyboardButton("360p", callback_data=f"DS_{0}_{translation_id}_{serial_id}_360"))
+    return keyboard
+
+def generate_hello_keyboard() -> ReplyKeyboardMarkup:
+    """Callback: DS_{0}_{translation_id}_{serial_id}_720"""
+    keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
+    keyboard.add(KeyboardButton("/help"))
+    keyboard.add(KeyboardButton("/author"))
     return keyboard
 
 def generate_series_keyboard(series_count: int, translation_id: str, serial_id: str, quality: str):

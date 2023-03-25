@@ -3,7 +3,7 @@ from aiogram import Bot, Dispatcher, executor, types, filters # импортир
 from search_engines import shikimori_search, get_serial_info, get_serial_shiki_info
 from functions import generate_cool_search_list, SearchBlockedError, \
     generate_translations_inline_keyboard, generate_quality_inline_keyboard, generate_quality_inline_keyboard_for_film, \
-    generate_series_keyboard, NotFoundError
+    generate_series_keyboard, NotFoundError, generate_hello_keyboard
 from link_getter import get_download_link
 import threading
 from config import TOKEN
@@ -15,17 +15,23 @@ dp = Dispatcher(bot)
 
 @dp.message_handler(commands=['start'])
 async def on_start(message: types.Message):
-	await message.reply("Для поиска введите /search и имя тайтла через пробел")
+	await message.answer(text="Для поиска введите /search и имя тайтла через пробел", 
+                      reply_markup=generate_hello_keyboard())
 
 @dp.message_handler(commands=['help'])
 async def on_help(message: types.Message):
-	await message.reply("Для поиска введите /search и имя тайтла через пробел.\n\n"\
+	await message.answer(text="Для поиска введите /search и имя тайтла через пробел. (Пример: /search Наруто)\n\n"\
         "Если вам написали что в поиске присутствуют материалы 18+, попробуйте указать более конкретное название или добавить номер сезона.\n\n"\
         "Если это не помогло, попробуйте получить id вручную. Для этого перейдите на сайт <a href='shikimori.one/animes'>Шикимори</a> и найдите там нужный сериал.\n"\
         "Зайдите на его страницу, и в адресной строке браузера, (https://shikimori.one/animes/30-neon-genesis-evangelion) вам нужно взять часть после \"animes/\" и перед \"-\". (В данном случае это 30)\n"\
         "Далее ведите команду /dowload подставив полученное id после слова <b><u>БЕЗ ПРОБЕЛА!</u></b> (В данном случае команда будет выглядеть так: /download30)"
     
-    , parse_mode="HTML", disable_web_page_preview=True)
+    , parse_mode="HTML", disable_web_page_preview=True, reply_markup=generate_hello_keyboard())
+        
+@dp.message_handler(commands=['author'])
+async def on_start(message: types.Message):
+	await message.answer(text="Автор: YaNesyTortiK\nGithub проекта: https://github.com/YaNesyTortiK/KodikGrabber\nTelegram: @nesy_tortik", 
+                      reply_markup=generate_hello_keyboard())
 
 @dp.message_handler(commands=['search']) 
 async def send_welcome(message: types.Message): # Реализует поиск
@@ -87,21 +93,21 @@ async def process_callback_translation_question(callback_query: types.CallbackQu
     txt = callback_query.data.split("_")
     if txt[0] == "DS":
         await callback_query.message.answer(text="Поиск ссылки...")
-        await callback_query.message.answer(text=f"Загрузка доступна:\n<a href='{await get_download_link(txt[3], int(txt[1]), txt[2])}/{txt[4]}.mp4?load=1'>Скачать</a>\n"\
+        await callback_query.message.answer(text=f"Загрузка доступна:\n<a href='https:{await get_download_link(txt[3], int(txt[1]), txt[2])}{txt[4]}.mp4?load=1'>Скачать</a>\n"\
                 "<b>Внимание!</b> Cкорость загрузки будет ограничена сервером. (в зависимости от качества займёт от 7 до 20 минут на 24 минутную серию)",
                 parse_mode="HTML")
         print(f"[DOWNLOAD REQUEST] [{callback_query.message.from_id}] SUCCESSFULLY  download link sended")
     elif txt[0] == "DA":
         await callback_query.message.answer(text="Ссылки на скачивание будут добавляться по мере их нахождения. (Займет некоторое время)")
         for i in range(1, int(txt[1])+1):
-            await callback_query.message.answer(text=f"Серия {i} --> <a href='{await get_download_link(txt[3], int(txt[1]), txt[2])}/{txt[4]}.mp4?load=1'>Скачать</a>", parse_mode="HTML")
+            await callback_query.message.answer(text=f"Серия {i} --> <a href='https:{await get_download_link(txt[3], int(txt[1]), txt[2])}{txt[4]}.mp4?load=1'>Скачать</a>", parse_mode="HTML")
         await callback_query.message.answer(text="Поиск ссылок завершён.\n<b>Внимание!</b>\nСкорость загрузки ограничена сервером. (в зависимости от качества займёт от 7 до 20 минут на 24 минутную серию)", parse_mode="HTML")
         print(f"[DOWNLOAD REQUEST] [{callback_query.message.from_id}] SUCCESSFULLY  download links sended")
 
 
 @dp.message_handler()
 async def echo(message: types.Message):
-	await message.answer(message.text)
+	await message.answer(text="Для поиска введите /search и имя тайтла через пробел. (Пример: /search Наруто)")
 
 if __name__ == '__main__':
   executor.start_polling(dp, skip_updates=True)
