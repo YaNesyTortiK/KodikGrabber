@@ -22,14 +22,14 @@ class KodikParser(object):
             self.API_URL,
             params={
                 'title': 'Player',
-                'hasPlayer': False,
+                'hasPlayer': 'false',
                 'url': 'https://kodikdb.com/find-player?shikimoriID=%s' % shikimori_id,
                 'token': self.token,
                 'shikimoriID': shikimori_id,
             },
         ) as response:
             
-            return await response.json().get('link')
+            return (await response.json()).get('link')
         
         
     async def _scrape_player(self, player_url: str, translation: int) -> tuple:
@@ -41,11 +41,11 @@ class KodikParser(object):
         soup = BeautifulSoup(html, 'lxml')
         option = soup.find(
             'div', {'class': 'serial-translations-box'},
-        ).find('option', {'data-id': translation})
+        ).find('option', {'data-id': str(translation)})
         
         return (
-            option.get_attribute('data-media-id'),
-            option.get_attribute('data-media-hash'),
+            option.get('data-media-id'),
+            option.get('data-media-hash'),
         )
         
         
@@ -60,8 +60,8 @@ class KodikParser(object):
                 'pd_sign': '09ffe86e9e452eec302620225d9848eb722efd800e15bf707195241d9b7e4b2b',
                 'ref': '',
                 'ref_sign': '208d2a75f78d8afe7a1c73c2d97fd3ce07534666ab4405369f4f8705a9741144',
-                'advert_debug': True,
-                'first_url': False,
+                'advert_debug': 'true',
+                'first_url': 'false',
                 'episode': serie,
             },
         ) as response:
@@ -76,7 +76,7 @@ class KodikParser(object):
             variable: re.search(
                 fr'.{variable} = \'(.+?)\'', 
                 target_script
-            ).group()
+            ).group(1)
             for variable in variable_names
         }
         
@@ -86,8 +86,8 @@ class KodikParser(object):
         async with self.session.post(
             'https://kodik.cc/gvi',
             params={
-                "hash": id,
-                "id": hash, 
+                "id": id, 
+                "hash": hash,
                 "quality": "720p",
                 "type": type,
                 "protocol": "",
@@ -98,12 +98,12 @@ class KodikParser(object):
                 "pd_sign": "9945930febce35101e96ce0fe360f9729430271c19941e63c5208c2f342e10ed",
                 "ref": "",
                 "ref_sign": "208d2a75f78d8afe7a1c73c2d97fd3ce07534666ab4405369f4f8705a9741144",
-                "advert_debug": True,
-                "first_url": False,
+                "advert_debug": 'true',
+                "first_url": 'false',
             }
         ) as response:
             
-            data = await response.json()
+            data = await response.json(content_type=None)
             
             encrypted_link = data['links']['720'][0]['src']
             return b64decode(

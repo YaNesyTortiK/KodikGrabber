@@ -1,12 +1,11 @@
 import requests
-from bs4 import BeautifulSoup as Soup
-import lxml
-import aiohttp
-from functions import SearchBlockedError, NotFoundError
-from functions import is_serial, is_video, generate_translations_dict
 import json
-import asyncio
-import requests
+
+import aiohttp
+
+from bs4 import BeautifulSoup as Soup
+from .functions import SearchBlockedError, NotFoundError
+from .functions import is_serial, is_video, generate_translations_dict
 
 
 def shikimori_search(name: str) -> list:
@@ -74,9 +73,9 @@ async def get_url_data(url: str):
     """Returns scrapped data from url"""
     async with aiohttp.ClientSession() as session:
         print(1, 'GETTING', url)
-        data = await session.get(url)
-        print(2, 'SUCCESS')
-    return await data.text()
+        async with session.get(url) as response:
+            
+            return await response.text()
 
 def post_url_data(url: str, params):
     """posts data to url"""
@@ -105,7 +104,9 @@ async def get_serial_info(shikimoriID: str) -> dict:
         url = url['link']
         url = "https:"+url
         data = await get_url_data(url)
+        print('sdf')
         soup = Soup(data, 'lxml')
+        print('sdf')
         if is_serial(url):
             print('SERIAL')
             series_count = len(soup.find("div", {"class": "serial-series-box"}).find("select").find_all("option"))

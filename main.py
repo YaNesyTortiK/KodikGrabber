@@ -1,16 +1,9 @@
 import asyncio
 import logging
 
-from app import (
-    middlewares,
-    handlers,
-    utils,
-)
-from app.database import create_sessionmaker
-from app.utils import set_commands
+from app import handlers, utils
 
 from aiogram import Bot, Dispatcher
-from aiogram.fsm.storage.memory import MemoryStorage, SimpleEventIsolation
 
 
 logger = logging.getLogger(__name__)
@@ -18,33 +11,26 @@ logger = logging.getLogger(__name__)
 async def main():
 
     config = utils.load_config('config.yaml')
-
+    kodik = utils.KodikParser(config.kodik_token)
+    
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     )
     logger.info("Starting bot...")
 
-    storage = MemoryStorage()
-    sessionmaker = await create_sessionmaker(
-        config.database_url, 
-        debug=config.debug,
-    )
 
     bot = Bot(
         token=config.token,
         parse_mode="HTML",
     )
-    dp = Dispatcher(storage=storage, events_isolation=SimpleEventIsolation())
+    dp = Dispatcher()
 
-    middlewares.setup(dp, sessionmaker)
     handlers.setup(dp)
-
-    await set_commands(bot, config)
 
     try:
 
-        await dp.start_polling(bot, config=config)
+        await dp.start_polling(bot, config=config, kodik=kodik)
 
     finally:
 
