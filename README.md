@@ -9,3 +9,4 @@ On Russian, because program not mentioned to work with other languages.
 Поиск реализован через парсинг shikimori.one.
 Поиск ссылки через парсинг и последовательного получения аргументов. (см. файл link_getter.py)
 
+(__pycache__ и venv нужно удалить)
