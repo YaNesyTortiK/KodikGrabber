@@ -6,9 +6,10 @@ from functions import generate_cool_search_list, SearchBlockedError, \
     generate_series_keyboard, NotFoundError
 from link_getter import get_download_link
 import threading
+from config import TOKEN
 
 # API_TOKEN = os.getenv('TOKEN') # Токен  
-API_TOKEN = "<TOKEN>"
+API_TOKEN = TOKEN
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot)
 
@@ -85,15 +86,15 @@ async def process_callback_translation_question(callback_query: types.CallbackQu
     await bot.answer_callback_query(callback_query.id)
     txt = callback_query.data.split("_")
     if txt[0] == "DS":
-        await callback_query.message.answer(text="Поиск ссылки... (Это может занять около минуты)")
-        await callback_query.message.answer(text=f"Загрузка доступна:\n<a href='{await get_download_link(txt[3], int(txt[1]), txt[2])}/{txt[4]}.mp4'>Скачать</a>\n"\
-                "<b>Внимание!</b>\nСсылка будет доступна в течении <u>2-3 часов</u>. Также скорость загрузки будет ограничена сервером. (в зависимости от качества займёт от 7 до 20 минут на 24 минутную серию)",
+        await callback_query.message.answer(text="Поиск ссылки...")
+        await callback_query.message.answer(text=f"Загрузка доступна:\n<a href='{await get_download_link(txt[3], int(txt[1]), txt[2])}/{txt[4]}.mp4?load=1'>Скачать</a>\n"\
+                "<b>Внимание!</b> Cкорость загрузки будет ограничена сервером. (в зависимости от качества займёт от 7 до 20 минут на 24 минутную серию)",
                 parse_mode="HTML")
         print(f"[DOWNLOAD REQUEST] [{callback_query.message.from_id}] SUCCESSFULLY  download link sended")
     elif txt[0] == "DA":
-        await callback_query.message.answer(text="Ссылки на скачивание будут добавляться по мере их нахождения. Обратите внимание, что ссылка доступна в течении 2-3 часов.")
+        await callback_query.message.answer(text="Ссылки на скачивание будут добавляться по мере их нахождения. (Займет некоторое время)")
         for i in range(1, int(txt[1])+1):
-            await callback_query.message.answer(text=f"Серия {i} --> <a href='{await get_download_link(txt[3], int(txt[1]), txt[2])}/{txt[4]}.mp4'>Скачать</a>", parse_mode="HTML")
+            await callback_query.message.answer(text=f"Серия {i} --> <a href='{await get_download_link(txt[3], int(txt[1]), txt[2])}/{txt[4]}.mp4?load=1'>Скачать</a>", parse_mode="HTML")
         await callback_query.message.answer(text="Поиск ссылок завершён.\n<b>Внимание!</b>\nСкорость загрузки ограничена сервером. (в зависимости от качества займёт от 7 до 20 минут на 24 минутную серию)", parse_mode="HTML")
         print(f"[DOWNLOAD REQUEST] [{callback_query.message.from_id}] SUCCESSFULLY  download links sended")
 

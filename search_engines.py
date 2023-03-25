@@ -6,6 +6,7 @@ from functions import SearchBlockedError, NotFoundError
 from functions import is_serial, is_video, generate_translations_dict
 import json
 import asyncio
+import requests
 
 
 def shikimori_search(name: str) -> list:
@@ -72,10 +73,17 @@ def shikimori_search(name: str) -> list:
 async def get_url_data(url: str):
     """Returns scrapped data from url"""
     async with aiohttp.ClientSession() as session:
-        print(1)
+        print(1, 'GETTING', url)
         data = await session.get(url)
-        print(2)
+        print(2, 'SUCCESS')
     return await data.text()
+
+def post_url_data(url: str, params):
+    """posts data to url"""
+    print(1, 'POSTING: ', url, 'PARAMS: ', params)
+    data = requests.post(url=url, params=params)
+    print(2, 'SUCCESS')
+    return data
 
 
 async def get_link_to_serial_info(shikimoriID: str):
@@ -99,10 +107,13 @@ async def get_serial_info(shikimoriID: str) -> dict:
         data = await get_url_data(url)
         soup = Soup(data, 'lxml')
         if is_serial(url):
+            print('SERIAL')
             series_count = len(soup.find("div", {"class": "serial-series-box"}).find("select").find_all("option"))
             translations_div = soup.find("div", {"class": "serial-translations-box"}).find("select").find_all("option")
+            print(translations_div)
             return generate_translations_dict(series_count, translations_div)
         elif is_video(url):
+            print('VIDEO')
             series_count = -1
             try:
                 translations_div = soup.find("div", {"class": "movie-translations-box"}).find("select").find_all("option")

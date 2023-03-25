@@ -71,7 +71,8 @@ def is_video(iframe_url: str) -> bool:
 
 def generate_translations_dict(series_count: int, translations_div: Soup) -> dict:
     """Returns: {'series_count': series_count, 'translations': translations}"""
-    if not isinstance(translations_div, list):
+    if not isinstance(translations_div, Soup):
+        print('SOUP')
         translations = []
         for translation in translations_div:
             a = {}
@@ -80,6 +81,7 @@ def generate_translations_dict(series_count: int, translations_div: Soup) -> dic
             a['name'] = translation.text
             translations.append(a)
     else:
+        print('NOT SOUP')
         translations = [{"id": "-1", "type": "Неизвестно", "name": "Неизвестно"}]
 
     return {'series_count': series_count, 'translations': translations}
